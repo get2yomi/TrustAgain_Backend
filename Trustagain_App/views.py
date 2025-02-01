@@ -1,26 +1,53 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from Trustagain_App.models import User
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status, permissions
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+from .models import InputData
+from .serializers import UserSerializer, InputDataSerializer
 
-# Create your views here.
+
+
+
 def index(request):
-    return HttpResponse("Hello, world. You're at the Trustagain_App index.")
+    return HttpResponse(request, "index.html")
 
-def users(request):
-    user_list = User.objects.order_by('first_name')
-    user_dict = {'users': user_list}
-    return render(request, 'appTwo/users.html', context = user_dict) # with this render returns we can grap stuff from the database
 
-# this is used to import my forms
-def form_name_view(request):
-    forms_instance = forms.Formname()
-    if request.method == "POST": # if there is a request or someone hit the submit button do below
-        forms_instance = forms.Formname(request.POST)
+# Register 
 
-        if forms_instance.is_valid():
-            print("VALIDATION SUCCESS")
-            print("NAME: " + forms_instance.cleaned_data['name'])   
-            print("EMAIL: " + forms_instance.cleaned_data['email'])
-            print("TEXT: " + forms_instance.cleaned_data['text'])
+class RegisterView(APIView):
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    return render(request, 'appTwo/form_page.html' , {'form': forms_instance})  
+# Login User (returns JWT token)
+class LoginView(APIView):
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+        user = authenticate(username=username, password=password)
+        if user:
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+            })
+        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+# API to accept screen input data
+class InputDataView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        request.data['user'] = request.user.id  # Attach user ID
+        serializer = InputDataSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Data saved successfully"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
