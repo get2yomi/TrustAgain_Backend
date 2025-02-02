@@ -23,7 +23,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('', views.index, name = 'index'),
     path('users/', include('Trustagain_App.urls')),
-    path('formpage/', views.form_name_view, name='form_name'),
-    path('api/', include('api.urls')),
-    path('admin/', admin.site.urls),
+    path('api/', include('Trustagain_App.urls')),
 ]

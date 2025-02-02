@@ -6,6 +6,9 @@ from django.contrib.auth.models import AbstractUser
 # Custom User Model
 class User(AbstractUser):
     phone = models.CharField(max_length=15, unique=True, blank=True, null=True)
+    class Meta:
+        # Avoid conflicts with Django’s default User model
+        swappable = "AUTH_USER_MODEL"
 
 # Model to store screen input data
 class InputData(models.Model):

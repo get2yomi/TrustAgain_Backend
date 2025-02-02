@@ -13,7 +13,7 @@ from .serializers import UserSerializer, InputDataSerializer
 
 
 def index(request):
-    return HttpResponse(request, "index.html")
+    return HttpResponse(request, "form_page.html")
 
 
 # Register 
