@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import InputData
+from .models import ShiftNarrative
+from .models import TimeSheet
+from .models import IncidentReport
 
 User = get_user_model()
 
@@ -19,4 +22,20 @@ class UserSerializer(serializers.ModelSerializer):
 class InputDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = InputData
+        fields = '__all__'
+
+
+class ShiftNarrativeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShiftNarrative
+        fields = '__all__'
+
+class TimeSheetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TimeSheet
+        fields = '__all__'
+
+class IncidentReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IncidentReport
         fields = '__all__'
