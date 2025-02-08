@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import get_user_model
 from django.contrib.auth import get_user_model
+from django.utils.timezone import now
+
 
 
 # Custom User Model
@@ -27,19 +29,20 @@ class InputData(models.Model):
 class ShiftNarrative(models.Model):
     staff_name = models.CharField(max_length=255)
     client_name = models.CharField(max_length=255)
-    service_start = models.TimeField()
-    service_end = models.TimeField()
-    date_clock_in = models.DateField()
-    severity = models.CharField(max_length=50, choices=[
-        ('Low', 'Low'),
-        ('Medium', 'Medium'),
-        ('High Risk', 'High Risk'),
-        ('Critical', 'Critical')
-    ])
+    Time_in = models.TimeField()
+    Time_out = models.TimeField()
+    date_in = models.DateField(default=now)
+    date_out = models.DateField(default=now)
+    # severity = models.CharField(max_length=50, choices=[
+    #     ('Low', 'Low'),
+    #     ('Medium', 'Medium'),
+    #     ('High Risk', 'High Risk'),
+    #     ('Critical', 'Critical')
+    # ])
     report_notes = models.TextField()
 
     def __str__(self):
-        return f"{self.staff_name} - {self.client_name} ({self.date_clock_in})"
+        return f"{self.staff_name} - {self.client_name} ({self.date_in})"
 
 
 # TimeSheet Model

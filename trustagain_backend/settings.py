@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'rest_framework.authtoken',
+    'corsheaders',
 
 
    
@@ -58,6 +59,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = "trustagain_backend.urls"
@@ -142,3 +144,5 @@ REST_FRAMEWORK = {
     ),
 }
 AUTH_USER_MODEL = 'Trustagain_App.User'
+
+CORS_ALLOW_ALL_ORIGINS = True  # For development only
