@@ -14,3 +14,9 @@ python manage.py migrate
 
 ------------------------------
 pip install django-cors-headers
+python manage.py show_urls
+pip install django-extensions
+pip install djangorestframework djangorestframework.authtoken
+python manage.py runserver 0.0.0.0:8000
+
+ timezone.now()

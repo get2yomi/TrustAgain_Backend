@@ -22,6 +22,6 @@ from Trustagain_App import views
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('', views.index, name = 'index'),
-    path('users/', include('Trustagain_App.urls')),
     path('api/', include('Trustagain_App.urls')),
+    # path('api/', include('Trustagain_App.urls')),
 ]

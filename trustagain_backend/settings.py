@@ -28,8 +28,8 @@ SECRET_KEY = "django-insecure-b*a2(+^ow3=p)y!o4hvr78peekc_=wa$tm6*59^6&w6wq*r4o$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ["*"]
+#['127.0.0.1', 'localhost', '1.0.0.127.in-addr.arpa']
 
 # Application definition
 
@@ -44,7 +44,9 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'rest_framework.authtoken',
-    'corsheaders',
+    "django_extensions",
+    'rest_framework_simplejwt',
+    'corsheaders', # this is used to integrate my backend to my frontend
 
 
    
@@ -141,8 +143,19 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
 }
-AUTH_USER_MODEL = 'Trustagain_App.User'
+AUTH_USER_MODEL = 'Trustagain_App.User' #this is found under model
+# AUTH_USER_MODEL = 'Trustagain_App.CustomUser' # this is found under model
+
 
 CORS_ALLOW_ALL_ORIGINS = True  # For development only
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:19006",  # Replace with your React Native server URL
+]
+CORS_ALLOW_CREDENTIALS = True
