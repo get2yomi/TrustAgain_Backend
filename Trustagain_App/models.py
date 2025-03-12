@@ -39,6 +39,21 @@ class ShiftNarrative(models.Model):
     Time_out = models.TimeField()
     date_in = models.DateField(default=now)
     date_out = models.DateField(default=now)
+    bm_times = models.IntegerField(null=True, blank=True)
+    bm_size = models.CharField(choices=[('large', 'large'), ('medium', 'medium'), ('small', 'small'), ('extral_large', 'extral_large'),('none','none')], max_length=255, null = True, blank=True)
+
+    symptoms = models.CharField(max_length=50, choices=[
+        ("urinary pain" , "urinary pain"),
+        ("constipation" , "constipation"),
+        ("diarrhea" , "diarrhea"),
+        ("vomiting" , "vomiting"),
+        ("nausea" , "nausea"),
+        ("fever" , "fever"),
+        ("headache" , "headache"),
+        ("other" , "other"),
+        ('none','none')
+    ], null=True, blank=True)
+    behaviour_description = models.TextField()
     # severity = models.CharField(max_length=50, choices=[
     #     ('Low', 'Low'),
     #     ('Medium', 'Medium'),
@@ -46,7 +61,7 @@ class ShiftNarrative(models.Model):
     #     ('Critical', 'Critical')
     # ])
     report_notes = models.TextField()
-    description = models.TextField()
+    #description = models.TextField()
 
     def __str__(self):
         return f"{self.user.username} - {self.client_name} ({self.date_in})"

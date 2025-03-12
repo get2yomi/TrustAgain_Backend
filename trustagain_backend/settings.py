@@ -157,5 +157,6 @@ CORS_ALLOW_ALL_ORIGINS = True  # For development only
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:19006",  # Replace with your React Native server URL
+    "http://localhost:8081",
 ]
 CORS_ALLOW_CREDENTIALS = True

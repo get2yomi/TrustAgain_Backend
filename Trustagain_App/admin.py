@@ -28,7 +28,7 @@ from django.utils.translation import gettext_lazy as _  # Import gettext_lazy fo
 
 @admin.register(ShiftNarrative)
 class ShiftNarrativeAdmin(admin.ModelAdmin):
-    list_display = ('user', 'client_name', 'date_in', 'Time_in', 'Time_out', 'date_out', 'report_notes')
+    list_display = ('user', 'client_name', 'date_in', 'Time_in', 'Time_out', 'date_out', 'report_notes', 'bm_times', 'bm_size', 'symptoms', 'behaviour_description')
     search_fields = ('user', 'client_name', 'report_notes', 'date_in')
     list_filter = ('client_name', 'date_in')
 
