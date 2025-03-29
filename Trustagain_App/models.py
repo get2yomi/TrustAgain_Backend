@@ -3,8 +3,10 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import get_user_model
 from django.contrib.auth import get_user_model
 from django.utils.timezone import now
-
-
+from django.contrib.auth.models import User
+from datetime import time
+import datetime
+from django.utils.timezone import now
 
 # # Custom User Model
 class User(AbstractUser):
@@ -35,36 +37,26 @@ class ShiftNarrative(models.Model):
     # staff_name = models.CharField(max_length=255)
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
     client_name = models.CharField(max_length=255)
-    Time_in = models.TimeField()
-    Time_out = models.TimeField()
+    # Time_in = models.TimeField(null=True, blank=True, default=time(12, 0))  # Default to 12:00 PM
+    # Time_out = models.TimeField(null=True, blank=True, default=time(12, 0))
+    Time_in = models.TimeField(null=True, blank=True, default=datetime.time(12, 0, 0))
+    Time_out = models.TimeField(null=True, blank=True, default=datetime.time(12, 0, 0))
     date_in = models.DateField(default=now)
     date_out = models.DateField(default=now)
     bm_times = models.IntegerField(null=True, blank=True)
-    bm_size = models.CharField(choices=[('large', 'large'), ('medium', 'medium'), ('small', 'small'), ('extral_large', 'extral_large'),('none','none')], max_length=255, null = True, blank=True)
+    bm_size = models.CharField(choices=[('large', 'large'), ('medium', 'medium'), ('small', 'small'), ('extra_large', 'extra_large'),('none','none')], max_length=255, null = True, blank=True)
 
-    symptoms = models.CharField(max_length=50, choices=[
-        ("urinary pain" , "urinary pain"),
-        ("constipation" , "constipation"),
-        ("diarrhea" , "diarrhea"),
-        ("vomiting" , "vomiting"),
-        ("nausea" , "nausea"),
-        ("fever" , "fever"),
-        ("headache" , "headache"),
-        ("other" , "other"),
-        ('none','none')
-    ], null=True, blank=True)
+   
+
+    symptoms = models.TextField()
     behaviour_description = models.TextField()
-    # severity = models.CharField(max_length=50, choices=[
-    #     ('Low', 'Low'),
-    #     ('Medium', 'Medium'),
-    #     ('High Risk', 'High Risk'),
-    #     ('Critical', 'Critical')
-    # ])
+    created_at = models.DateTimeField(auto_now_add=True)
+   
     report_notes = models.TextField()
     #description = models.TextField()
 
     def __str__(self):
-        return f"{self.user.username} - {self.client_name} ({self.date_in})"
+        return f"Shift Narrative - {self.user.username} - {self.client_name} ({self.date_in})"
 
 
 # TimeSheet Model
@@ -103,6 +95,26 @@ class IncidentReport(models.Model):
         return f"{self.report_title} - {self.client_name} ({self.date})"
 
 
+
+class UnfinishedForm(models.Model):
+    FORM_TYPES = [
+        ("Time Sheet", "Time Sheet"),
+        ("Incident Report", "Incident Report"),
+        ("Shift Narrative", "Shift Narrative"),
+    ]
+    
+    username = models.CharField(max_length=150)  # Store username (or use ForeignKey to User)
+    form_type = models.CharField(max_length=20, choices=FORM_TYPES)
+    submitted = models.BooleanField(default=False)  # False = not yet sent
+
+    def __str__(self):
+        return f"{self.username} - {self.form_type} (Submitted: {self.submitted})"
+
+
+
+
+
+
 # class CustomUser(AbstractUser):
 #     # Add custom fields if needed
 #     phone_number = models.CharField(max_length=15, blank=True, null=True)
@@ -112,3 +124,17 @@ class IncidentReport(models.Model):
 #         if not self.password.startswith('pbkdf2_sha256$'):
 #             self.set_password(self.password)
 #         super().save(*args, **kwargs)
+
+
+# class IncidentReport(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)  # Link to logged-in user
+#     report_title = models.CharField(max_length=255)
+#     staff_name = models.CharField(max_length=255)
+#     time_clock_in = models.TimeField()
+#     date_clock_in = models.DateField()
+#     client_name = models.CharField(max_length=255)
+#     severity = models.CharField(max_length=50, choices=[('Low', 'Low'), ('Medium', 'Medium'), ('High Risk', 'High Risk'), ('Critical', 'Critical')])
+#     report_notes = models.TextField()
+
+#     def __str__(self):
+#         return f"{self.report_title} - {self.client_name} ({self.severity})"

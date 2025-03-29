@@ -11,8 +11,15 @@ from .serializers import UserSerializer, InputDataSerializer, ShiftNarrativeSeri
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view, permission_classes
-
-
+from django.http import JsonResponse
+from .models import UnfinishedForm
+from django.contrib.auth.models import User  # Ensure correct user handling
+from rest_framework.permissions import IsAuthenticated
+from .serializers import ShiftNarrativeSerializer
+from .models import ShiftNarrative
+from rest_framework import status
+import logging
+from datetime import datetime
 
 
 
@@ -77,31 +84,104 @@ class InputDataView(APIView):
             return Response({"message": "Data saved successfully"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# API to create a shift narrative
-@api_view(['POST'])
-@permission_classes([permissions.IsAuthenticated])  # Ensure authentication
-def create_shift_narrative(request):
-    serializer = ShiftNarrativeSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# # API to create a shift narrative
+# @api_view(['POST'])
+# @permission_classes([permissions.IsAuthenticated])  # Ensure authentication
+# def create_shift_narrative(request):
+#     serializer = ShiftNarrativeSerializer(data=request.data)
+#     if serializer.is_valid():
+#         serializer.save()
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# # API to create a time sheet entry
+# class TimeSheetView(APIView):
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def post(self, request):
+#         print("Received Data:", request.data)  # ✅ Debug log
+#         data = request.data.copy()
+#         data["user"] = request.user.id  # Attach logged-in user
+
+#         serializer = TimeSheetSerializer(data=data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response({"message": "Time sheet submitted successfully"}, status=status.HTTP_201_CREATED)
+#         print("Validation Errors:", serializer.errors)  # ✅ Debug errors
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # --------------------------
+
+
+# # Configure logging
+# logger = logging.getLogger(__name__)
+
+# @api_view(['POST'])
+# @permission_classes([permissions.IsAuthenticated])  # Ensure authentication
+# def create_shift_narrative(request):
+#     received_data = request.data  # Store received data
+#     logger.info(f"Received Shift Narrative Data: {received_data}")  # ✅ Log received data
+
+#     serializer = ShiftNarrativeSerializer(data=received_data)
+#     if serializer.is_valid():
+#         saved_data = serializer.save()
+#         logger.info("Shift narrative saved successfully.")  # ✅ Log success
+#         return Response(
+#             {
+#                 "message": "Shift narrative submitted successfully",
+#                 "captured_data": received_data,
+#                 "saved_data": serializer.data,
+#             }, 
+#             status=status.HTTP_201_CREATED
+#         )
+    
+#     logger.error(f"Shift Narrative Validation Errors: {serializer.errors}")  # ✅ Log errors
+#     return Response(
+#         {
+#             "message": "Shift narrative submission failed",
+#             "captured_data": received_data,
+#             "errors": serializer.errors,
+#         }, 
+#         status=status.HTTP_400_BAD_REQUEST
+#     )
 
 # API to create a time sheet entry
 class TimeSheetView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        print("Received Data:", request.data)  # ✅ Debug log
-        data = request.data.copy()
-        data["user"] = request.user.id  # Attach logged-in user
+        received_data = request.data.copy()  # Store received data
+        received_data["user"] = request.user.id  # Attach logged-in user
+        
+        logger.info(f"Received TimeSheet Data: {received_data}")  # ✅ Log received data
 
-        serializer = TimeSheetSerializer(data=data)
+        serializer = TimeSheetSerializer(data=received_data)
         if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "Time sheet submitted successfully"}, status=status.HTTP_201_CREATED)
-        print("Validation Errors:", serializer.errors)  # ✅ Debug errors
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            saved_data = serializer.save()
+            logger.info("Time sheet submitted successfully.")  # ✅ Log success
+            return Response(
+                {
+                    "message": "Time sheet submitted successfully",
+                    "captured_data": received_data,
+                    "saved_data": serializer.data,
+                }, 
+                status=status.HTTP_201_CREATED
+            )
+        
+        logger.error(f"TimeSheet Validation Errors: {serializer.errors}")  # ✅ Log errors
+        return Response(
+            {
+                "message": "Time sheet submission failed",
+                "captured_data": received_data,
+                "errors": serializer.errors,
+            }, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+
+# ///-------------------------------///
+
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def create_time_sheet(request):
@@ -184,12 +264,23 @@ def delete_incident_report(request, pk):
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def create_incident_report(request):
-    request.data['user'] = request.user.id  # Attach the logged-in user ID
-    serializer = IncidentReportSerializer(data=request.data)
+    print("Authenticated User:", request.user)  # ✅ Debugging step
+
+    if not request.user.is_authenticated:
+        return Response({"detail": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    # ✅ Create a copy of request.data instead of modifying it directly
+    data = request.data.copy()
+    data['user'] = request.user.id  # Attach the logged-in user ID
+
+    serializer = IncidentReportSerializer(data=data)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
@@ -209,3 +300,76 @@ def submit_time_sheet(request):
 
     print("Validation Errors:", serializer.errors)  # ✅ Show validation errors if any
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+def get_unfinished_forms(request):
+    username = request.GET.get('username')  # Get the username from request
+    if not username:
+        return JsonResponse({"error": "Username is required"}, status=400)
+
+    # Filter for unfinished forms linked to the given username
+    forms = UnfinishedForm.objects.filter(username=username, submitted=False)
+
+    if forms.exists():
+        form_data = [{"type": form.form_type, "id": form.id} for form in forms]
+        return JsonResponse({"unfinished_forms": form_data})
+    
+    return JsonResponse({"unfinished_forms": []})  # Return empty if no pending forms
+
+# shift narrative 
+class ShiftNarrativeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = ShiftNarrativeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)  # Link narrative to the user
+            return Response({"message": "Shift narrative saved successfully", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+    # ✅ Shift Narrative API (Fixed User & Time Formatting)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_shift_narrative(request):
+    data = request.data.copy()
+    data['user'] = request.user.id  # ✅ Ensure user is attached
+
+    # ✅ Convert time format before saving
+    try:
+        if 'Time_in' in data:
+            data['Time_in'] = datetime.strptime(data['Time_in'], "%H:%M:%S").time()
+        if 'Time_out' in data:
+            data['Time_out'] = datetime.strptime(data['Time_out'], "%H:%M:%S").time()
+    except ValueError:
+        return Response({"error": "Invalid time format error. Use HH:MM:SS"}, status=status.HTTP_400_BAD_REQUEST)
+
+    serializer = ShiftNarrativeSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({
+            "message": "Shift narrative submitted successfully",
+            "captured_data": data,
+            "saved_data": serializer.data,
+        }, status=status.HTTP_201_CREATED)
+
+    return Response({"message": "Validation failed", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+@api_view(['GET'])
+def get_shift_narrative(request):
+    data = {
+        "status": "success",
+        "message": "Shift narrative data fetched successfully",
+        "data": {
+            "id": 1,
+            "shift_name": "Night Shift",
+            "description": "Incident reported at midnight",
+            "timestamp": "2025-03-18T12:00:00Z"
+        }
+    }
+    return Response(data)

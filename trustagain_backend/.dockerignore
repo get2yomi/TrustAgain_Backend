@@ -1,0 +1,5 @@
+# To prevent unnecessary files from being added to the Docker image, create a
+__pycache__/
+db.sqlite3
+.env
+.git

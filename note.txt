@@ -24,3 +24,39 @@ pip install djangorestframework djangorestframework.authtoken
 python manage.py runserver 0.0.0.0:8000
 
  timezone.now()
+
+ -----------------------------
+ # 1️⃣ Build the Docker Image
+docker build -t trustagain_backend .
+
+# 2️⃣ Run the Django App in a Container
+docker run -p 8000:8000 my-django-app
+docker login
+docker tag my-django-app your-dockerhub-username/my-django-app:v1
+docker push your-dockerhub-username/my-django-app:v1
+-----------------------------------------------------
+Once your image is on Docker Hub, you can run it anywhere (AWS, DigitalOcean, or any server) with:
+docker run -p 8000:8000 your-dockerhub-username/my-django-app:v1
+==========================
+this is used to generate requirement.txt file.
+pip freeze > requirements.txt
+
+docker login -u <username>'
+==============================
+to run my continer, docker run image_id
+to run my container and expose to the host machine:
+docker run -d -p 8000:8000 --name trustagain_backend trustagain_backend
+----------------------------------
+-d = means run the container in background of detachmode.
+-p 8000:8000 → Maps port 8000 in the container to port 8000 on your local machine.
+--name trustagain_backend → Names the running container (optional).
+================================
+docker stop trustagain_backend == stop conatiner running
+==========================
+to push to docker repo
+1= docker login
+2= docker tag trustagain_backend get2kunle/trustagain_backend_deploy:v1
+3= docker push get2kunle/trustagain_backend_deploy:v1
+================================
+when pushing to docker hub and you encounter error, the folllwoing steps was done.
+1= rm ~/.docker/config.json === i remove this file and relogin backgain using docker login command.
