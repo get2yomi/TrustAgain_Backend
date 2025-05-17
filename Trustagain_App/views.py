@@ -20,14 +20,32 @@ from .models import ShiftNarrative
 from rest_framework import status
 import logging
 from datetime import datetime
+from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
+from django.shortcuts import render
+from .models import IncidentReport, ShiftNarrative, TimeSheet  # adjust to your models
 
-
+logger = logging.getLogger(__name__)
 
 # Get user model dynamically
 User = get_user_model()
 
 def index(request):
-    return HttpResponse("form_page.html")  # Corrected HttpResponse usage
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('homepage')  # ⬅️ Make sure this matches your URLs
+        else:
+            return render(request, 'Trust_App/login.html', {'error': 'Invalid credentials'})
+
+    return render(request, 'Trust_App/login.html')
 
 # User Registration
 class RegisterView(APIView):
@@ -300,5 +318,76 @@ def get_shift_narrative(request):
 
 
 
+def index_view(request):
+    return render(request, 'Trust_App/index.html')  # This matches your folder
+
+# html start from here
+
+
+# Login view
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('homepage')  # Redirect to homepage after login
+        else:
+            return render(request, 'Trust_App/login.html', {'error': 'Invalid credentials'})
+    
+    return render(request, 'Trust_App/login.html')
+
+# Homepage view (after login)
+@login_required
+def homepage_view(request):
+    return render(request, 'Trust_App/homepage.html')
+
+# Logout view
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+
+
+
+def dashboard_view(request):
+    return render(request, 'Trust_App/homepage.html')  # your dashboard file
+
+def incident_report_view(request):
+    reports = IncidentReport.objects.all()
+    return render(request, 'Trust_App/incident_report.html', {'incident_reports': reports})
+
+def shift_narrative_view(request):
+    shifts = ShiftNarrative.objects.all()
+    return render(request, 'Trust_App/shift_narrative.html', {'shift_narratives': shifts})
+
+def timesheet_view(request):
+    sheets = TimeSheet.objects.all()
+    return render(request, 'Trust_App/timesheet.html', {'timesheets': sheets})
+
+
+
+def incident_report_view(request):
+    reports = IncidentReport.objects.all()
+    return render(request, 'Trust_App/incident_report.html', {'reports': reports})
+
 
     return Response(data)
+
+def duration_hours(self):
+    try:
+        if self.date_in and self.time_in and self.time_out:
+            in_time = datetime.datetime.combine(self.date_in, self.time_in)
+            # If date_out is not set, assume same day unless time_out < time_in (overnight)
+            if self.date_out:
+                out_time = datetime.datetime.combine(self.date_out, self.time_out)
+            else:
+                out_time = datetime.datetime.combine(self.date_in, self.time_out)
+                if self.time_out < self.time_in:
+                    out_time += datetime.timedelta(days=1)
+            return round((out_time - in_time).total_seconds() / 3600, 2)
+    except Exception as e:
+        print(f"Error calculating duration: {e}")
+    return 0

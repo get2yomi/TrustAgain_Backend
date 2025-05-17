@@ -1,0 +1,11 @@
+{% comment %} {% extends "admin/change_list.html" %}
+
+{% block content_title %}
+    {{ block.super }}
+    <h3>User Time Totals:</h3>
+    <ul>
+        {% for user, total in user_hours.items %}
+        <li><strong>{{ user.username }}</strong>: {{ total }} hours</li>
+        {% endfor %}
+    </ul>
+{% endblock %} {% endcomment %}

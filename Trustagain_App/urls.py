@@ -7,6 +7,10 @@ from Trustagain_App.views import (
 from .views import get_unfinished_forms
 from .views import ShiftNarrativeView
 from .views import get_shift_narrative
+from . import views
+from .views import incident_report_view
+
+
 
 
 urlpatterns = [
@@ -32,8 +36,22 @@ urlpatterns = [
     path('incident-report/delete/<int:pk>/', delete_incident_report, name='delete_incident_report'),
     
     # Unfinished Forms
-    path('api/get-unfinished-forms/', get_unfinished_forms, name='get_unfinished_forms'),
+    #path('api/get-unfinished-forms/', get_unfinished_forms, name='get_unfinished_forms'),
+    # path('login/', views.login_view, name='login'),
+    # path('index/', views.index_view, name='index'),
 
-     path('api/shift-narrative/', get_shift_narrative, name='shift_narrative'),
+
+    path('api/shift-narrative/', get_shift_narrative, name='shift_narrative'),
+  
+   path('home/', views.homepage_view, name='homepage'),  # Redirected homepage
+   path('logout/', views.logout_view, name='logout'),
+    path('incident-report/', views.incident_report_view, name='incident_report'),
+    path('shift-narrative/', views.shift_narrative_view, name='shift_narrative'),
+    path('timesheet/', views.timesheet_view, name='timesheet'),
+   path('incident-report/', incident_report_view, name='incident_report'),
+
+    # path('', views.index_view, name='index'),  # 👈 this handles http://127.0.0.1:8000/
+
+    # path('', views.login_view, name='login'),          # Login page
 
 ]

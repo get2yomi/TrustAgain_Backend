@@ -1,3 +1,96 @@
 note.txt
 */note.txt
 */*/note.txt
+.env
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+.Python
+
+# Django settings / secrets
+*.sqlite3
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+
+# Environment variables
+.env
+.env.*
+
+# Static files (collected)
+staticfiles/
+static_root/
+static/
+
+# Media files
+media/
+uploads/
+
+# IDE/editor stuff
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Migrations (optional — include if you regenerate them often)
+# Comment this out if you're tracking migrations in version control
+# **/migrations/
+# !*/migrations/__init__.py
+
+# Compiled JS/CSS (optional)
+*.min.js
+*.min.css
+build/
+dist/
+
+# Coverage reports
+htmlcov/
+.coverage
+coverage.xml
+.cache
+.pytest_cache/
+
+# Testing
+test-results/
+
+# PyInstaller
+*.spec
+
+# Backup and dump files
+*.bak
+*.sql
+*.dump
+*.tar
+*.gz
+
+# Node (if using JS/React in frontend)
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Logs
+*.log
+
+# PostgreSQL local files (optional)
+*.pgsql
+*.log
+*.txt
+*.md
+*.rst
+*.txt
+*.md
+*.rst

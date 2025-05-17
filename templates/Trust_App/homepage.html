@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <header class="dashboard-header">
+            <h1>Welcome to TrustAgain Residency, {{ request.user.username }} ✨</h1>
+            <nav>
+                <ul class="top-nav">
+                    <li><a href="{% url 'logout' %}" class="logout-link">🚪 Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <aside class="dashboard-sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="{% url 'incident_report' %}">📋 Incident Reports</a></li>
+                <li><a href="{% url 'shift_narrative' %}">📝 Shift Narrative</a></li>
+                <li><a href="{% url 'timesheet' %}">⏱️ Timesheet</a></li>
+            </ul>
+        </aside>
+
+        <main class="dashboard-content">
+            <div class="card">
+                <h2>Quick Overview</h2>
+                <p>Select any section from the left menu to manage your reports and logs.</p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

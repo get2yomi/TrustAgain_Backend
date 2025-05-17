@@ -29,6 +29,9 @@ COPY . /app/
 # Expose the port Django runs on
 EXPOSE 8000
 
+# Collect static files (optional)
+RUN python manage.py collectstatic --noinput
+
 # Run Django server
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 

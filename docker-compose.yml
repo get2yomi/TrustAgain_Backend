@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   web:
@@ -6,22 +5,25 @@ services:
     container_name: trustAgain_backend
     ports:
       - "8000:8000"
+    env_file:
+      - .env
     volumes:
       - .:/app
     depends_on:
       - db
 
-#   db:
-#     image: postgres:13
-#     container_name: django_db
-#     environment:
-#       POSTGRES_DB: mydatabase
-#       POSTGRES_USER: myuser
-#       POSTGRES_PASSWORD: mypassword
-#     ports:
-#       - "5432:5432"
-#     volumes:
-#       - postgres_data:/var/lib/postgresql/data
+  db:
+    image: postgres:14
+    container_name: django_db
+    env_file: # you are loading from .env not environment.
+        - .env # all this credential is been saved in my environment variables.
 
-# volumes:
-#   postgres_data:
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+
+

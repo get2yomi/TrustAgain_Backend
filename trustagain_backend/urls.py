@@ -18,10 +18,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from Trustagain_App import views    
+from django.shortcuts import redirect
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('', views.index, name = 'index'),
+    #path('', views.index, name = 'index'),
     path('api/', include('Trustagain_App.urls')),
-    # path('api/', include('Trustagain_App.urls')),
-]
+    #path('', include('Trustagain_App.urls')),  # 👈 This points to your app
+    path('', lambda request: redirect('/admin/')),  # ✅ root URL now redirects admin
+    # path('accounts/', include('django.contrib.auth.urls')),  # ✅ Add this for password reset
+  
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

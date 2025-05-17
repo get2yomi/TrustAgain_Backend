@@ -7,6 +7,9 @@ from django.contrib.auth.models import User
 from datetime import time
 import datetime
 from django.utils.timezone import now
+from django.conf import settings 
+from datetime import datetime
+
 
 # # Custom User Model
 class User(AbstractUser):
@@ -37,16 +40,12 @@ class ShiftNarrative(models.Model):
     # staff_name = models.CharField(max_length=255)
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
     client_name = models.CharField(max_length=255)
-    # Time_in = models.TimeField(null=True, blank=True, default=time(12, 0))  # Default to 12:00 PM
-    # Time_out = models.TimeField(null=True, blank=True, default=time(12, 0))
-    Time_in = models.TimeField(null=True, blank=True, default=datetime.time(12, 0, 0))
-    Time_out = models.TimeField(null=True, blank=True, default=datetime.time(12, 0, 0))
+    Time_in = models.TimeField(null=True, blank=True, help_text="Format: HH:MM:SS")
+    Time_out = models.TimeField(null=True, blank=True, help_text="Format: HH:MM:SS")
     date_in = models.DateField(default=now)
     date_out = models.DateField(default=now)
     bm_times = models.IntegerField(null=True, blank=True)
     bm_size = models.CharField(choices=[('large', 'large'), ('medium', 'medium'), ('small', 'small'), ('extra_large', 'extra_large'),('none','none')], max_length=255, null = True, blank=True)
-
-   
 
     symptoms = models.TextField()
     behaviour_description = models.TextField()
@@ -54,6 +53,10 @@ class ShiftNarrative(models.Model):
    
     report_notes = models.TextField()
     #description = models.TextField()
+    # this is to change name on the admin panel
+    # class Meta:
+    #     verbose_name = "Daily Report"
+    #     verbose_name_plural = "Daily Reports"
 
     def __str__(self):
         return f"Shift Narrative - {self.user.username} - {self.client_name} ({self.date_in})"
@@ -61,7 +64,7 @@ class ShiftNarrative(models.Model):
 
 # TimeSheet Model
 class TimeSheet(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     date_in = models.DateField()
     time_in = models.TimeField()
     date_out = models.DateField(null=True, blank=True)
@@ -69,9 +72,22 @@ class TimeSheet(models.Model):
     report_notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def duration_hours(self):
+        try:
+            if self.date_in and self.time_in and self.time_out:
+                in_time = datetime.combine(self.date_in, self.time_in)
+                out_time = datetime.combine(self.date_out or self.date_in, self.time_out)
+                return round((out_time - in_time).total_seconds() / 3600, 2)
+        except Exception:
+            pass
+        return 0
+
     def __str__(self):
-        return f"{self.user.username} - {self.date_in}"
-    
+        return f"{self.user.username} - {self.date_in}"  # ✅ No extra space before 'def'
+
+
+
+
 
 User = get_user_model()
 
@@ -112,29 +128,3 @@ class UnfinishedForm(models.Model):
 
 
 
-
-
-
-# class CustomUser(AbstractUser):
-#     # Add custom fields if needed
-#     phone_number = models.CharField(max_length=15, blank=True, null=True)
-
-#     def save(self, *args, **kwargs):
-#         # Ensure password is hashed before saving
-#         if not self.password.startswith('pbkdf2_sha256$'):
-#             self.set_password(self.password)
-#         super().save(*args, **kwargs)
-
-
-# class IncidentReport(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)  # Link to logged-in user
-#     report_title = models.CharField(max_length=255)
-#     staff_name = models.CharField(max_length=255)
-#     time_clock_in = models.TimeField()
-#     date_clock_in = models.DateField()
-#     client_name = models.CharField(max_length=255)
-#     severity = models.CharField(max_length=50, choices=[('Low', 'Low'), ('Medium', 'Medium'), ('High Risk', 'High Risk'), ('Critical', 'Critical')])
-#     report_notes = models.TextField()
-
-#     def __str__(self):
-#         return f"{self.report_title} - {self.client_name} ({self.severity})"

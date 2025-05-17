@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
 import os   
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,13 +24,17 @@ STATICS_DIRS = (os.path.join(BASE_DIR / "static"))
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-b*a2(+^ow3=p)y!o4hvr78peekc_=wa$tm6*59^6&w6wq*r4o$"
+# SECRET_KEY = "django-insecure-b*a2(+^ow3=p)y!o4hvr78peekc_=wa$tm6*59^6&w6wq*r4o$"
+load_dotenv()  # take environment variables from .env
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+#DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ["*"]
+#ALLOWED_HOSTS = ["*"]
 #['127.0.0.1', 'localhost', '1.0.0.127.in-addr.arpa']
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',')
 
 # Application definition
 
@@ -47,6 +52,8 @@ INSTALLED_APPS = [
     "django_extensions",
     'rest_framework_simplejwt',
     'corsheaders', # this is used to integrate my backend to my frontend
+    'import_export',
+    
 
 
    
@@ -65,6 +72,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "trustagain_backend.urls"
+
+# this is to change the admin login view.
+#TEMPLATES_DIRS = BASE_DIR / "../Trustagain_App/templates/admin/base_site.html"
+
 
 TEMPLATES = [
     {
@@ -89,9 +100,26 @@ WSGI_APPLICATION = "trustagain_backend.wsgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    # "default": {
+    #     "ENGINE": "django.db.backends.sqlite3",
+    #     "NAME": BASE_DIR / "db.sqlite3",
+    # }
+     'default': {
+         # this uses local database
+        # 'ENGINE': 'django.db.backends.postgresql',
+        # 'NAME': os.environ.get('DB_NAME'),
+        # 'USER': os.environ.get('DB_USER'),
+        # 'PASSWORD': os.environ.get('DB_PASSWORD'),
+        # 'HOST': os.environ.get('DB_HOST'),
+        # 'PORT': os.environ.get('DB_PORT'),
+        # this is using docker file
+        #This uses the Docker service name (db) as the hostname, which allows your Django container to talk to your Postgres container over Docker’s internal network.
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_DB'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST', 'db'),  # usually 'db' in Docker network
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
 
@@ -134,7 +162,7 @@ STATIC_URL = "static/"
 STATICFILES_DIRS = [
     STATICS_DIRS,
 ]
-
+STATIC_ROOT = BASE_DIR / "staticfiles"
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -147,16 +175,64 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
+        # 'rest_framework.permissions.AllowAny',
     ],
 }
 AUTH_USER_MODEL = 'Trustagain_App.User' #this is found under model
 # AUTH_USER_MODEL = 'Trustagain_App.CustomUser' # this is found under model
 
 
-CORS_ALLOW_ALL_ORIGINS = True  # For development only
+CORS_ALLOW_ALL_ORIGINS = False  # For development only for production this should be false
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:19006",  # Replace with your React Native server URL
     "http://localhost:8081",
 ]
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = False
+# this is to change the admin login view. when enter the admin page it will redirect to the admin page.
+LOGIN_URL = '/'
+LOGIN_REDIRECT_URL = '/admin/'
+
+## ⚠️ These should only be enabled when HTTPS is active (like on a real server with SSL).
+
+#Security Settings
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+
+# HTTPS Settings (for production) this is for security purposes it must be set in development environment.
+SECURE_SSL_REDIRECT = False                 # Redirect all HTTP to HTTPS
+SESSION_COOKIE_SECURE = False               # Prevent session cookie over HTTP
+CSRF_COOKIE_SECURE = False                   # Prevent CSRF cookie over HTTP
+SECURE_HSTS_SECONDS = 31536000               # Enforce HTTPS for 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+SECURE_HSTS_PRELOAD = False
+
+##below code capture production error
+## To capture and monitor production errors, configure logging:
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs/django_errors.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}
+## email to reset password
+EMAIL_HOST = os.environ.get('EMAIL_HOST')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'no-reply@trustagain.com')
