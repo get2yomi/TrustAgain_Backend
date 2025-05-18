@@ -85,12 +85,12 @@ yarn-error.log
 # Logs
 *.log
 
+# Text and documentation files
+*.txt
+*.txy
+*.ct
+*.md
+*.rst
+
 # PostgreSQL local files (optional)
 *.pgsql
-*.log
-*.txt
-*.md
-*.rst
-*.txt
-*.md
-*.rst
